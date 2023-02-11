@@ -35,6 +35,7 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	//set up des variables
 	int milieu = W/2;
 	int reward = 0;
+	int adversaire = S % 2 + 1;
 	
 	//Win la partie
 	if(check_N(board, x, y, S, W, H, 4)){
@@ -42,7 +43,6 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	}
 	
 	//Empêcher une win
-	int adversaire = S % 2 + 1;
 	if(check_N(board, x, y, adversaire, W, H, 4)){
 		reward += stopWin;
 	}
@@ -52,13 +52,23 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	//Empêcher une force win
 	
 	//Connecter trois pions qui ont du potentiel
-	
-	//Jouer au centre
+	//TODO le potentiel, pour l'instant pas forcément de potentiel
+	if(check_N(board, x, y, S, W, H, 3)){
+		reward += connect3WithPotential;
+	}
 
-	//Par rapport au milieu
+	//Jouer au centre
 	reward += playCenter - abs(milieu - y);
+
+	//Empêcher de connecter trois pions qui ont du potentiel
+	if(check_N(board, x, y, adversaire, W, H, 3)){
+		reward += stopConnect3WithPotential;
+	}
 	
 	//Connecter deux pions qui ont du potentiel
+	if(check_N(board, x, y, S, W, H, 2)){
+		reward += connect2WithPotential;
+	}
 	
 	return reward;
 }
