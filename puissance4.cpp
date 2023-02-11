@@ -1,16 +1,73 @@
 #include <iostream>
+#include <algorithm>
 #include <vector>
+#include <cstdlib>
 using namespace std;
 
-int reward(vector<vector<int>> & board, int y){
-	return y;
+//Récompenses en puissance de 2 pour par exemple que win ne puisse pas se faire rattraper par la somme des autres
+int win = 128;
+int stopWin = 64;
+int forceWin = 32;
+int stopForceWin = 16;
+int connect3WithPotential = 8;
+int playCenter = 4;
+int stopConnect3WithPotential = 2;
+int connect2WithPotential = 1;
+
+void Afficher(vector<vector<int>> & board);
+int checkWin(vector<vector<int>> & board, int x, int y, int S, int W, int H);
+
+int fallHeight(vector<vector<int>> & board, int y, int H){
+	int x = H;
+	while(x > 0 && board[x-1][y] == 0){
+		x -= 1;
+	}
+	return x;
 }
-int strategy(vector<vector<int>> & board){
-	int maxPoints = reward(board, 0);
+
+int reward(vector<vector<int>> & board, int y, int S, int W, int H){
+	//calcul de x 
+	int x = fallHeight(board, y, H);
+	//cas coup illégal
+	if(x == H){
+		return -10000;
+	}
+	//set up des variables
+	int milieu = W/2;
+	int reward = 0;
+	
+	//Win la partie
+	if(checkWin(board, x, y, S, W, H)){
+		reward += win;
+	}
+	
+	//Empêcher une win
+	int adversaire = S % 2 + 1;
+	if(checkWin(board, x, y, adversaire, W, H)){
+		reward += stopWin;
+	}
+
+	//Force win
+	
+	//Empêcher une force win
+	
+	//Connecter trois pions qui ont du potentiel
+	
+	//Jouer au centre
+
+	//Par rapport au milieu
+	reward += playCenter - abs(milieu - y);
+	
+	//Connecter deux pions qui ont du potentiel
+	
+	return reward;
+}
+int strategy(vector<vector<int>> & board, int S, int W, int H){
+	int maxPoints = reward(board, 0, S, W, H);
 	int y = 0;
 	int points;
-	for(int i = 1; i < board[0].size(); ++i){
-		points = reward(board, i);
+	for(int i = 1; i < W; ++i){
+		points = reward(board, i, S, W, H);
 		if(points>maxPoints){
 			maxPoints = points;
 			y = i;
@@ -19,13 +76,6 @@ int strategy(vector<vector<int>> & board){
 	return y;
 }
 
-int fallHeight(vector<vector<int>> & board, int y){
-	int x = board.size();
-	while(x > 0 && board[x-1][y] == 0){
-		x -= 1;
-	}
-	return x;
-}
 
 int main(){
 	//Récupération des valeurs du cin et création du plateau
@@ -44,12 +94,97 @@ int main(){
 	while(1){
 		player = player % N + 1;
 		if(player == S){
-			y = strategy(board); 
+			y = strategy(board, S, W, H); 
 			cout << y << endl;
 		} else {
 			cin >> y;
 		}
-		y = fallHeight(board, y);
+		x = fallHeight(board, y, H);
 		board[x][y] = player;
+		// Afficher(board);
 	}	
+}
+
+void Afficher(vector<vector<int>> & board){
+	for(int i = board.size()-1; i >= 0; --i){
+		for(int j = 0; j < board[0].size(); ++j){
+			cout << board[i][j];
+		}
+		cout << endl;
+	}
+}
+
+int checkWin(vector<vector<int>> & board, int x, int y, int S, int W, int H){
+	//On vérifie si on a une win verticale.
+	if(x >= 3){
+		if(board[x-1][y] == S && board[x-2][y] == S && board[x-3][y] == S){
+			return 1;
+		}
+	}
+	//On vérifie si on a une win horizontale
+	vector<int>::iterator it;
+	board[x][y] = S;
+	it = search_n(board[x].begin(), board[x].end(), 4, S);
+	if(it != board[x].end()){
+		board[x][y] = 0;
+		return 1;
+	} else {
+		board[x][y] = 0;
+	}
+	//On vérifie si on a une win diagonale à pente positive
+	int nbPions = 1;
+	int xprime = x;
+	int yprime = y;
+	while(xprime > 0 && yprime > 0){
+		if(board[xprime-1][yprime-1] == S){
+			nbPions++;
+		} else {
+			break;
+		}
+		--xprime;
+		--yprime;
+	}
+	xprime = x;
+	yprime = y;
+	while(xprime < H - 1 && yprime < W - 1){
+		if(board[xprime+1][yprime+1] == S){
+			nbPions++;
+		} else {
+			break;
+		}
+		++xprime;
+		++yprime;
+	}
+	if(nbPions >= 4){
+		return 1;
+	}
+	//On vérifie si on a une win diagonale à pente négative
+	nbPions = 1;
+	xprime = x;
+	yprime = y;
+	while(xprime < H - 1 && yprime > 0){
+		if(board[xprime+1][yprime-1] == S){
+			nbPions++;
+		} else {
+			break;
+		}
+		++xprime;
+		--yprime;
+	}
+	xprime = x;
+	yprime = y;
+	while(xprime > 0 && yprime < W - 1){
+		if(board[xprime-1][yprime+1] == S){
+			nbPions++;
+		} else {
+			break;
+		}
+		--xprime;
+		++yprime;
+	}
+	if(nbPions >= 4){
+		return 1;
+	}
+	
+	return 0;
 }
