@@ -15,7 +15,7 @@ int stopConnect3WithPotential = 2;
 int connect2WithPotential = 1;
 
 void Afficher(vector<vector<int>> & board);
-int checkWin(vector<vector<int>> & board, int x, int y, int S, int W, int H);
+int check_N(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N);
 
 int fallHeight(vector<vector<int>> & board, int y, int H){
 	int x = H;
@@ -37,13 +37,13 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	int reward = 0;
 	
 	//Win la partie
-	if(checkWin(board, x, y, S, W, H)){
+	if(check_N(board, x, y, S, W, H, 4)){
 		reward += win;
 	}
 	
 	//Empêcher une win
 	int adversaire = S % 2 + 1;
-	if(checkWin(board, x, y, adversaire, W, H)){
+	if(check_N(board, x, y, adversaire, W, H, 4)){
 		reward += stopWin;
 	}
 
@@ -114,24 +114,33 @@ void Afficher(vector<vector<int>> & board){
 	}
 }
 
-int checkWin(vector<vector<int>> & board, int x, int y, int S, int W, int H){
-	//On vérifie si on a une win verticale.
-	if(x >= 3){
-		if(board[x-1][y] == S && board[x-2][y] == S && board[x-3][y] == S){
+int check_N(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
+	//On vérifie la verticale.
+	if(x >= N-1){
+		int xprime = x - 1;
+		int res = 1;
+		while(xprime > x - N){
+			if(board[xprime][y] != S){
+				res = 0;
+				break;
+			}
+			--xprime;
+		}
+		if(res){
 			return 1;
 		}
 	}
-	//On vérifie si on a une win horizontale
+	//On vérifie l'horizontale
 	vector<int>::iterator it;
 	board[x][y] = S;
-	it = search_n(board[x].begin(), board[x].end(), 4, S);
+	it = search_n(board[x].begin(), board[x].end(), N, S);
 	if(it != board[x].end()){
 		board[x][y] = 0;
 		return 1;
 	} else {
 		board[x][y] = 0;
 	}
-	//On vérifie si on a une win diagonale à pente positive
+	//On vérifie la diagonale pente positive
 	int nbPions = 1;
 	int xprime = x;
 	int yprime = y;
@@ -155,10 +164,10 @@ int checkWin(vector<vector<int>> & board, int x, int y, int S, int W, int H){
 		++xprime;
 		++yprime;
 	}
-	if(nbPions >= 4){
+	if(nbPions >= N){
 		return 1;
 	}
-	//On vérifie si on a une win diagonale à pente négative
+	//On vérifie la diagonale pente négative
 	nbPions = 1;
 	xprime = x;
 	yprime = y;
@@ -182,7 +191,7 @@ int checkWin(vector<vector<int>> & board, int x, int y, int S, int W, int H){
 		--xprime;
 		++yprime;
 	}
-	if(nbPions >= 4){
+	if(nbPions >= N){
 		return 1;
 	}
 	
