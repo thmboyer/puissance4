@@ -61,6 +61,15 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	}
 
 	//Ne pas donner la victoire
+	nombre = 1;
+	board[x][y] = S;
+	if(x < H-1){
+		if(check_N_horizontal(board, x + 1, y, adversaire, W, H, 4) || check_N_diagonale_pente_positive(board, x + 1, y, adversaire, W, H, 4) || check_N_diagonale_pente_negative(board, x + 1, y, adversaire, W, H, 4)){
+			nombre = 0;
+		}
+	}
+	reward += nombre * dontGiveWin;
+	board[x][y] = 0;
 
 	//Force win
 	
@@ -191,41 +200,70 @@ void Afficher(vector<vector<int>> & board){
 }
 
 int check_N_horizontal(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
-	int adversaire = S % 2 + 1;
-	//On vérifie l'horizontale
-	vector<int>::iterator it = board[x].begin();
-	vector<int>::iterator debut = it;
-	vector<int>::iterator fin = board[x].end();
-	--fin;
-	int posFin = W - 1;
-	for(int i = 0; i < y; ++i){
-		if( *it == adversaire || *it == 0){
-			debut = it;
-			++it;
-		} else {
-			++it;
-		}
-	}
-	it = fin;
-	for(int i = W - 1; i > y; --i){
-		if(*it == adversaire || *it == 0){
-			fin = it;
-			posFin = i;
-			--it;
-		} else {
-			--it;
-		}
-	}
-	//cout << "appel pour N = " << N << " last : " << *fin  << " posfin : " << posFin << endl;
+	// int adversaire = S % 2 + 1;
+	// //On vérifie l'horizontale
+	// vector<int>::iterator it = board[x].begin();
+	// vector<int>::iterator debut = it;
+	// vector<int>::iterator fin = board[x].end();
+	// --fin;
+	// int posFin = W - 1;
+	// for(int i = 0; i < y; ++i){
+	// 	if( *it == adversaire || *it == 0){
+	// 		debut = it;
+	// 		++it;
+	// 	} else {
+	// 		++it;
+	// 	}
+	// }
+	// it = fin;
+	// for(int i = W - 1; i > y; --i){
+	// 	if(*it == adversaire || *it == 0){
+	// 		fin = it;
+	// 		posFin = i;
+	// 		--it;
+	// 	} else {
+	// 		--it;
+	// 	}
+	// }
+	// //cout << "appel pour N = " << N << " last : " << *fin  << " posfin : " << posFin << endl;
+	// board[x][y] = S;
+	// vector<int>::iterator it2 = search_n(debut, fin, N, S);
+	// if(it2 != fin){
+	// 	board[x][y] = 0;
+	// 	return 1;
+	// } else {
+	// 	board[x][y] = 0;
+	// }
+	// return 0;
+	
+	int serieTrouvee = 0;
+	int yprime = 0;
+	int compteur = 0;
+	int debutSerie;
+	int finSerie;
 	board[x][y] = S;
-	vector<int>::iterator it2 = search_n(debut, fin, N, S);
-	if(it2 != fin){
-		board[x][y] = 0;
-		return 1;
-	} else {
-		board[x][y] = 0;
+	while(yprime < W){
+		while( yprime < W && board[x][yprime] != S){
+			yprime++;
+		}
+		// cout << "yprime trouve : " << yprime << endl;
+		debutSerie = yprime;
+		compteur = 1;
+		finSerie = debutSerie;
+		yprime++;
+		while(yprime < W && board[x][yprime] == S){
+			finSerie++;
+			compteur++;
+			yprime++;
+		}
+		if(compteur >= N && debutSerie <= y && finSerie >= y){
+			serieTrouvee = 1;
+			break;
+		}
 	}
-	return 0;
+	board[x][y] = 0;
+	// cout << "oki" << endl;
+	return serieTrouvee;
 }
 
 int check_N_vertical(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
@@ -311,75 +349,120 @@ int check_N_diagonale_pente_negative(vector<vector<int>> & board, int x, int y, 
 }
 
 int potentiel_N_horizontal(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
-	int adversaire = S % 2 + 1;
-	int res = 0;
-	int compteur;
-	//Horizontal
+	// int adversaire = S % 2 + 1;
+	// int res = 0;
+	// int compteur;
+	// //Horizontal
+	// board[x][y] = S;
+	// vector<int>::iterator itDebut;
+	// vector<int>::iterator itFin;
+	// vector<int>::iterator it = board[x].begin();
+	// vector<int>::iterator it2;
+	// vector<int>::iterator debut = board[x].begin();
+	// vector<int>::iterator fin = board[x].end();
+	// --fin;
+	// int posFin = W - 1;
+	// for(int i = 0; i < y; ++i){
+	// 	if( *it == adversaire || *it == 0){
+	// 		debut = it;
+	// 		++it;
+	// 	} else {
+	// 		++it;
+	// 	}
+	// }
+	// it = fin;
+	// for(int i = W - 1; i > y; --i){
+	// 	if(*it == adversaire || *it == 0){
+	// 		fin = it;
+	// 		posFin = i;
+	// 		--it;
+	// 	} else {
+	// 		--it;
+	// 	}
+	// }
+	// itDebut = search_n(debut, fin, N, S);
+	// itFin = itDebut;
+	// for(int i = 0; i < N-1; ++i){
+	// 	++itFin;
+	// }
+	// compteur = N;
+	// it = itDebut;
+	// it2 = itFin;
+	// ++it2;
+	// if(it != board[0].begin()){
+	// 	--it;
+	// }
+	// while(it != board[x].begin()){
+	// 	if(*it == 0 || *it == S){
+	// 		compteur++;
+	// 		--it;
+	// 	} else {
+	// 		break;
+	// 	}
+	// }
+	// if(it == board[x].begin()){
+	// 	if(*it == 0 || *it == S){
+	// 		compteur++;
+	// 	}
+	// }
+	// while(it2 != board[x].end()){
+	// 	if(*it2 == 0 || *it2 == S){
+	// 		compteur++;
+	// 		++it2;
+	// 	} else {
+	// 		break;
+	// 	}
+	// }
+	// if(compteur >= 4){
+	// 	res++;
+	// }
+	// board[x][y] = 0;
+	// return res;
+	
+	int serieTrouvee = 0;
+	int yprime = 0;
+	int compteur = 0;
+	int debutSerie;
+	int finSerie;
 	board[x][y] = S;
-	vector<int>::iterator itDebut;
-	vector<int>::iterator itFin;
-	vector<int>::iterator it = board[x].begin();
-	vector<int>::iterator it2;
-	vector<int>::iterator debut = board[x].begin();
-	vector<int>::iterator fin = board[x].end();
-	--fin;
-	int posFin = W - 1;
-	for(int i = 0; i < y; ++i){
-		if( *it == adversaire || *it == 0){
-			debut = it;
-			++it;
-		} else {
-			++it;
+	while(yprime < W){
+		while(yprime < W && board[x][yprime] != S){
+			yprime++;
 		}
-	}
-	it = fin;
-	for(int i = W - 1; i > y; --i){
-		if(*it == adversaire || *it == 0){
-			fin = it;
-			posFin = i;
-			--it;
-		} else {
-			--it;
-		}
-	}
-	itDebut = search_n(debut, fin, N, S);
-	itFin = itDebut;
-	for(int i = 0; i < N-1; ++i){
-		++itFin;
-	}
-	compteur = N;
-	it = itDebut;
-	it2 = itFin;
-	++it2;
-	if(it != board[0].begin()){
-		--it;
-	}
-	while(it != board[x].begin()){
-		if(*it == 0 || *it == S){
+		debutSerie = yprime;
+		compteur = 1;
+		finSerie = debutSerie;
+		yprime++;
+		while(yprime < W && board[x][yprime] == S){
+			finSerie++;
 			compteur++;
-			--it;
-		} else {
+			yprime++;
+		}
+		if(compteur >= N && debutSerie <= y && finSerie >= y){
+			serieTrouvee = 1;
 			break;
 		}
-	}
-	if(it == board[x].begin()){
-		if(*it == 0 || *it == S){
-			compteur++;
-		}
-	}
-	while(it2 != board[x].end()){
-		if(*it2 == 0 || *it2 == S){
-			compteur++;
-			++it2;
-		} else {
-			break;
-		}
-	}
-	if(compteur >= 4){
-		res++;
 	}
 	board[x][y] = 0;
-	return res;
+	if(serieTrouvee){
+		debutSerie--;
+		finSerie++;
+		while(debutSerie >= 0 && board[x][debutSerie] == 0){
+			compteur++;
+			debutSerie--;
+		}
+		while(finSerie < W && board[x][finSerie] == 0){
+			compteur++;
+			finSerie++;
+		}
+		if(compteur >= 4){
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+	// cout << "oki2" << endl;
+	return 0;
 }
 
 int potentiel_N_vertical(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
