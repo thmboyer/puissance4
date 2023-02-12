@@ -9,20 +9,23 @@ int win = 100000;
 int stopWin = 20000;
 int dontGiveWin = 5000;
 int forceWin = 1000;
+int coupDuTraitre = 1000;
 int stopForceWin = 500;
+int stopCoupDuTraitre = 500;
 int dontGiveForceWin = 300;
-int connect3WithPotential = 8;
+int connect3WithPotential = 80;
+int coeffCentre = 7;
 int playCenter = 4;
-int stopConnect3WithPotential = 6;
-int connect2WithPotential = 2;
+int stopConnect3WithPotential = 40;
+int connect2WithPotential = 8;
 
 int possibilitesWin[6][7] =	{
 								{3,4,5,7,5,4,3},
+								{4,6,10,15,10,6,4},
+								{5,8,20,25,20,8,5},
+								{5,8,20,25,20,8,5},
 								{4,6,8,10,8,6,4},
-								{5,8,11,13,11,8,5},
-								{5,8,11,13,11,8,5},
-								{4,6,8,10,8,6,4},
-								{3,4,5,7,5,4,3}
+								{2,2,5,7,5,2,2}
 							};
 
 void Afficher(vector<vector<int>> & board);
@@ -34,6 +37,7 @@ int potentiel_N_horizontal(vector<vector<int>> & board, int x, int y, int S, int
 int potentiel_N_vertical(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N);
 int potentiel_N_diagonale_pente_positive(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N);
 int potentiel_N_diagonale_pente_negative(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N);
+int saleTraitre(vector<vector<int>> & board, int x, int y, int S, int W, int H);
 
 int fallHeight(vector<vector<int>> & board, int y, int H){
 	int x = H;
@@ -111,6 +115,17 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 		board[x][y] = 0;
 		reward += nombre * dontGiveForceWin;
 	}
+
+	//Coup du traitre
+	if(saleTraitre(board, x, y, S, W, H)){
+		reward += coupDuTraitre;
+	}
+
+
+	//Stop coup du traitre
+	if(saleTraitre(board, x, y, adversaire, W, H)){
+		reward += stopCoupDuTraitre;
+	}
 	
 	//Connecter trois pions qui ont du potentiel
 	//TODO si on a du potentiel dans deux sens différents, nombre doit être incrémenté de deux en pas 1
@@ -136,7 +151,7 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 
 	//Jouer au centre
 	if(W == 7 && H == 6){
-		reward += possibilitesWin[x][y];
+		reward += coeffCentre * possibilitesWin[x][y];
 	} else {
 		reward += playCenter - abs(milieu - y)*2;
 	}
@@ -593,4 +608,47 @@ int potentiel_N_diagonale_pente_negative(vector<vector<int>> & board, int x, int
 		res++;
 	}
 	return res;
+}
+
+int saleTraitre(vector<vector<int>> & board, int x, int y, int S, int W, int H){
+
+	int traitrise = 0;
+	int serieTrouvee = 0;
+	int yprime = 0;
+	int compteur = 0;
+	int debutSerie;
+	int finSerie;
+	board[x][y] = S;
+	while(yprime < W){
+		while( yprime < W && board[x][yprime] != S){
+			yprime++;
+		}
+		// cout << "yprime trouve : " << yprime << endl;
+		debutSerie = yprime;
+		compteur = 1;
+		finSerie = debutSerie;
+		yprime++;
+		while(yprime < W && board[x][yprime] == S){
+			finSerie++;
+			compteur++;
+			yprime++;
+		}
+		if(compteur >= 3 && debutSerie <= y && finSerie >= y){
+			serieTrouvee = 1;
+			break;
+		}
+	}
+	board[x][y] = 0;
+	if(serieTrouvee){
+		if(finSerie < W-1){
+			if(debutSerie > 0){
+				if( board[x][debutSerie-1] == 0 && board[x][finSerie+1] == 0){
+					if(x == 0 || (x > 0 && board[x-1][debutSerie-1] > 0 && board[x-1][finSerie+1] > 0)){
+						traitrise = 1;
+					}
+				}
+			}
+		}
+	}
+	return traitrise;
 }
