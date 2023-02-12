@@ -102,7 +102,7 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 		nombre += potentiel_N_diagonale_pente_positive(board, x, y, adversaire, W, H, 3);
 		cout << "stopConnect3 diagonale pente positive" << endl;
 	}
-	if(check_N_horizontal(board, x, y, adversaire, W, H, 3)){
+	if(check_N_diagonale_pente_negative(board, x, y, adversaire, W, H, 3)){
 		nombre += potentiel_N_diagonale_pente_negative(board, x, y, adversaire, W, H, 3);
 		cout << "stopConnect3 diagonale pente negative" << endl;
 	}
@@ -194,22 +194,26 @@ int check_N_horizontal(vector<vector<int>> & board, int x, int y, int S, int W, 
 	vector<int>::iterator debut = it;
 	vector<int>::iterator fin = board[x].end();
 	--fin;
+	int posFin = W - 1;
 	for(int i = 0; i < y; ++i){
-		if( *it == adversaire){
+		if( *it == adversaire || *it == 0){
 			debut = it;
 			++it;
 		} else {
 			++it;
 		}
 	}
+	it = fin;
 	for(int i = W - 1; i > y; --i){
-		if(*it == adversaire){
+		if(*it == adversaire || *it == 0){
 			fin = it;
+			posFin = i;
 			--it;
 		} else {
 			--it;
 		}
 	}
+	//cout << "appel pour N = " << N << " last : " << *fin  << " posfin : " << posFin << endl;
 	board[x][y] = S;
 	vector<int>::iterator it2 = search_n(debut, fin, N, S);
 	if(it2 != fin){
