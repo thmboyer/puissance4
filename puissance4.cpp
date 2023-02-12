@@ -5,17 +5,24 @@
 using namespace std;
 
 //Récompenses en puissance de 2 pour par exemple que win ne puisse pas se faire rattraper par la somme des autres
-int win = 128;
-int stopWin = 64;
-int forceWin = 32;
-int stopForceWin = 16;
+int win = 1024;
+int stopWin = 512;
+int forceWin = 256;
+int stopForceWin = 128;
 int connect3WithPotential = 8;
 int playCenter = 4;
-int stopConnect3WithPotential = 2;
-int connect2WithPotential = 1;
+int stopConnect3WithPotential = 4;
+int connect2WithPotential = 2;
 
 void Afficher(vector<vector<int>> & board);
-int check_N(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N);
+int check_N_horizontal(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N);
+int check_N_vertical(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N);
+int check_N_diagonale_pente_positive(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N);
+int check_N_diagonale_pente_negative(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N);
+int potentiel_N_horizontal(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N);
+int potentiel_N_vertical(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N);
+int potentiel_N_diagonale_pente_positive(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N);
+int potentiel_N_diagonale_pente_negative(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N);
 
 int fallHeight(vector<vector<int>> & board, int y, int H){
 	int x = H;
@@ -36,14 +43,19 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	int milieu = W/2;
 	int reward = 0;
 	int adversaire = S % 2 + 1;
+	int nombre;
 	
+	cout << " x : " << x << " y : " << y << endl;	
+
 	//Win la partie
-	if(check_N(board, x, y, S, W, H, 4)){
+	if(check_N_horizontal(board, x, y, S, W, H, 4) || check_N_vertical(board, x, y, S, W, H, 4) || check_N_diagonale_pente_positive(board, x, y, S, W, H, 4) || check_N_diagonale_pente_negative(board, x, y, S, W, H, 4)){
+		cout << "win" << endl;
 		reward += win;
 	}
 	
 	//Empêcher une win
-	if(check_N(board, x, y, adversaire, W, H, 4)){
+	if(check_N_horizontal(board, x, y, adversaire, W, H, 4) || check_N_vertical(board, x, y, adversaire, W, H, 4) || check_N_diagonale_pente_positive(board, x, y, adversaire, W, H, 4) || check_N_diagonale_pente_positive(board, x, y, adversaire, W, H, 4) || check_N_diagonale_pente_negative(board, x, y, adversaire, W, H, 4)){
+		cout << "stopWin" << endl;
 		reward += stopWin;
 	}
 
@@ -52,23 +64,69 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	//Empêcher une force win
 	
 	//Connecter trois pions qui ont du potentiel
-	//TODO le potentiel, pour l'instant pas forcément de potentiel
-	if(check_N(board, x, y, S, W, H, 3)){
-		reward += connect3WithPotential;
+	//TODO si on a du potentiel dans deux sens différents, nombre doit être incrémenté de deux en pas 1
+	nombre = 0;
+	if(check_N_horizontal(board, x, y, S, W, H, 3)){
+		nombre += potentiel_N_horizontal(board, x, y, S, W, H, 3);
+		cout << "connect 3 with potential horizontaly"<< endl;
 	}
+	if(check_N_vertical(board, x, y, S, W, H, 3)){
+		nombre += potentiel_N_vertical(board, x, y, S, W, H, 3);
+		cout << "connect 3 with potential verticaly"<< endl;
+	}
+	if(check_N_diagonale_pente_positive(board, x, y, S, W, H, 3)){
+		nombre += potentiel_N_diagonale_pente_positive(board, x, y, S, W, H, 3);
+		cout << "connect 3 with potential diagonale pente positive"<< endl;
+	}
+	if(check_N_diagonale_pente_negative(board, x, y, S, W, H, 3)){
+		nombre += potentiel_N_diagonale_pente_negative(board, x, y, S, W, H, 3);
+		cout << "connect 3 with potential diagonale pente negative"<< endl;
+	}
+
+	reward += nombre * connect3WithPotential;
 
 	//Jouer au centre
-	reward += playCenter - abs(milieu - y);
+	reward += playCenter - abs(milieu - y)*2;
 
 	//Empêcher de connecter trois pions qui ont du potentiel
-	if(check_N(board, x, y, adversaire, W, H, 3)){
-		reward += stopConnect3WithPotential;
+	nombre = 0;
+	if(check_N_horizontal(board, x, y, adversaire, W, H, 3)){
+		nombre += potentiel_N_horizontal(board, x, y, adversaire, W, H, 3);
+		cout << "stopConnect3 horizontaly" << endl;
 	}
+	if(check_N_vertical(board, x, y, adversaire, W, H, 3)){
+		nombre += potentiel_N_vertical(board, x, y, adversaire, W, H, 3);
+		cout << "stopConnect3 verticaly" << endl;
+	}
+	if(check_N_diagonale_pente_positive(board, x, y, adversaire, W, H, 3)){
+		nombre += potentiel_N_diagonale_pente_positive(board, x, y, adversaire, W, H, 3);
+		cout << "stopConnect3 diagonale pente positive" << endl;
+	}
+	if(check_N_horizontal(board, x, y, adversaire, W, H, 3)){
+		nombre += potentiel_N_diagonale_pente_negative(board, x, y, adversaire, W, H, 3);
+		cout << "stopConnect3 diagonale pente negative" << endl;
+	}
+	reward += nombre * stopConnect3WithPotential;
 	
 	//Connecter deux pions qui ont du potentiel
-	if(check_N(board, x, y, S, W, H, 2)){
-		reward += connect2WithPotential;
+	nombre = 0;
+	if(check_N_horizontal(board, x, y, S, W, H, 2)){
+		nombre += potentiel_N_horizontal(board, x, y, S, W, H, 2);
+		cout << "connect2 horizontaly" << endl;
 	}
+	if(check_N_vertical(board, x, y, S, W, H, 2)){
+		nombre += potentiel_N_vertical(board, x, y, S, W, H, 2);
+		cout << "connect2 verticaly" << endl;
+	}
+	if(check_N_diagonale_pente_positive(board, x, y, S, W, H, 2)){
+		nombre += potentiel_N_diagonale_pente_positive(board, x, y, S, W, H, 2);
+		cout << "connect2 diagonale pente positive" << endl;
+	}
+	if(check_N_diagonale_pente_negative(board, x, y, S, W, H, 2)){
+		nombre += potentiel_N_diagonale_pente_negative(board, x, y, S, W, H, 2);
+		cout << "connect2 diagonale pente negative" << endl;
+	}
+	reward += nombre * connect2WithPotential;
 	
 	return reward;
 }
@@ -111,20 +169,59 @@ int main(){
 		}
 		x = fallHeight(board, y, H);
 		board[x][y] = player;
-		// Afficher(board);
+		Afficher(board);
 	}	
 }
 
 void Afficher(vector<vector<int>> & board){
 	for(int i = board.size()-1; i >= 0; --i){
 		for(int j = 0; j < board[0].size(); ++j){
-			cout << board[i][j];
+			if(board[i][j]){
+				cout << board[i][j] << " ";
+			} else {
+				cout << ". ";
+			}
 		}
 		cout << endl;
 	}
+	cout << "--------------------------------" << endl;
 }
 
-int check_N(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
+int check_N_horizontal(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
+	int adversaire = S % 2 + 1;
+	//On vérifie l'horizontale
+	vector<int>::iterator it = board[x].begin();
+	vector<int>::iterator debut = it;
+	vector<int>::iterator fin = board[x].end();
+	--fin;
+	for(int i = 0; i < y; ++i){
+		if( *it == adversaire){
+			debut = it;
+			++it;
+		} else {
+			++it;
+		}
+	}
+	for(int i = W - 1; i > y; --i){
+		if(*it == adversaire){
+			fin = it;
+			--it;
+		} else {
+			--it;
+		}
+	}
+	board[x][y] = S;
+	vector<int>::iterator it2 = search_n(debut, fin, N, S);
+	if(it2 != fin){
+		board[x][y] = 0;
+		return 1;
+	} else {
+		board[x][y] = 0;
+	}
+	return 0;
+}
+
+int check_N_vertical(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
 	//On vérifie la verticale.
 	if(x >= N-1){
 		int xprime = x - 1;
@@ -140,16 +237,10 @@ int check_N(vector<vector<int>> & board, int x, int y, int S, int W, int H, int 
 			return 1;
 		}
 	}
-	//On vérifie l'horizontale
-	vector<int>::iterator it;
-	board[x][y] = S;
-	it = search_n(board[x].begin(), board[x].end(), N, S);
-	if(it != board[x].end()){
-		board[x][y] = 0;
-		return 1;
-	} else {
-		board[x][y] = 0;
-	}
+	return 0;
+}
+
+int check_N_diagonale_pente_positive(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
 	//On vérifie la diagonale pente positive
 	int nbPions = 1;
 	int xprime = x;
@@ -177,10 +268,14 @@ int check_N(vector<vector<int>> & board, int x, int y, int S, int W, int H, int 
 	if(nbPions >= N){
 		return 1;
 	}
+	return 0;
+}
+
+int check_N_diagonale_pente_negative(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
 	//On vérifie la diagonale pente négative
-	nbPions = 1;
-	xprime = x;
-	yprime = y;
+	int nbPions = 1;
+	int xprime = x;
+	int yprime = y;
 	while(xprime < H - 1 && yprime > 0){
 		if(board[xprime+1][yprime-1] == S){
 			nbPions++;
@@ -206,4 +301,142 @@ int check_N(vector<vector<int>> & board, int x, int y, int S, int W, int H, int 
 	}
 	
 	return 0;
+}
+
+int potentiel_N_horizontal(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
+	int res = 0;
+	int compteur;
+	//Horizontal
+	board[x][y] = S;
+	vector<int>::iterator itDebut;
+	vector<int>::iterator itFin;
+	vector<int>::iterator it;
+	vector<int>::iterator it2;
+	itDebut = search_n(board[x].begin(), board[x].end(), N, S);
+	itFin = itDebut;
+	for(int i = 0; i < N-1; ++i){
+		++itFin;
+	}
+	compteur = N;
+	it = itDebut;
+	it2 = itFin;
+	++it2;
+	if(it != board[0].begin()){
+		--it;
+	}
+	while(it != board[x].begin()){
+		if(*it == 0 || *it == S){
+			compteur++;
+			--it;
+		} else {
+			break;
+		}
+	}
+	if(it == board[x].begin()){
+		if(*it == 0 || *it == S){
+			compteur++;
+		}
+	}
+	while(it2 != board[x].end()){
+		if(*it2 == 0 || *it2 == S){
+			compteur++;
+			++it2;
+		} else {
+			break;
+		}
+	}
+	if(compteur >= 4){
+		res++;
+	}
+	board[x][y] = 0;
+	return res;
+}
+
+int potentiel_N_vertical(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
+	int res = 0;
+	int compteur;
+	//vertical
+	if(x >= N-1){
+		int xprime = x - 1;
+		int res2 = 1;
+		while(xprime > x - N){
+			if(board[xprime][y] != S){
+				res2 = 0;
+				break;
+			}
+			--xprime;
+		}
+		if(res2){
+			if( x + (4-N) < H){
+				++res;
+			}
+		}
+	}
+	return res;
+}
+
+int potentiel_N_diagonale_pente_positive(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
+	int res = 0;
+	int compteur;
+	//Diagonale pente positive
+	compteur = 1;
+	int xprime = x;
+	int yprime = y;
+	while(xprime > 0 && yprime > 0){
+		if(board[xprime-1][yprime-1] == S || board[xprime-1][yprime-1] == 0){
+			compteur++;
+		} else {
+			break;
+		}
+		--xprime;
+		--yprime;
+	}
+	xprime = x;
+	yprime = y;
+	while(xprime < H - 1 && yprime < W - 1){
+		if(board[xprime+1][yprime+1] == S || board[xprime+1][yprime+1] == 0){
+			compteur++;
+		} else {
+			break;
+		}
+		++xprime;
+		++yprime;
+	}
+	if(compteur >= 4){
+		res++;
+	}
+	return res;
+}
+
+int potentiel_N_diagonale_pente_negative(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
+	int res = 0;
+	int compteur;
+	//Diagonale pente négative
+	compteur = 1;
+	int xprime = x;
+	int yprime = y;
+	while(xprime < H - 1 && yprime > 0){
+		if(board[xprime+1][yprime-1] == S || board[xprime+1][yprime-1] == 0){
+			compteur++;
+		} else {
+			break;
+		}
+		++xprime;
+		--yprime;
+	}
+	xprime = x;
+	yprime = y;
+	while(xprime > 0 && yprime < W - 1){
+		if(board[xprime-1][yprime+1] == S || board[xprime-1][yprime+1] == 0){
+			compteur++;
+		} else {
+			break;
+		}
+		--xprime;
+		++yprime;
+	}
+	if(compteur >= 4){
+		res++;
+	}
+	return res;
 }
