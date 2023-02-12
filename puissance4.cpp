@@ -5,8 +5,9 @@
 using namespace std;
 
 //Récompenses en puissance de 2 pour par exemple que win ne puisse pas se faire rattraper par la somme des autres
-int win = 1024;
-int stopWin = 512;
+int win = 100000;
+int stopWin = 10000;
+int dontGiveWin = 3000;
 int forceWin = 256;
 int stopForceWin = 128;
 int connect3WithPotential = 8;
@@ -45,19 +46,21 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	int adversaire = S % 2 + 1;
 	int nombre;
 	
-	cout << " x : " << x << " y : " << y << endl;	
+	// cout << " x : " << x << " y : " << y << endl;	
 
 	//Win la partie
 	if(check_N_horizontal(board, x, y, S, W, H, 4) || check_N_vertical(board, x, y, S, W, H, 4) || check_N_diagonale_pente_positive(board, x, y, S, W, H, 4) || check_N_diagonale_pente_negative(board, x, y, S, W, H, 4)){
-		cout << "win" << endl;
+		// cout << "win" << endl;
 		reward += win;
 	}
 	
 	//Empêcher une win
 	if(check_N_horizontal(board, x, y, adversaire, W, H, 4) || check_N_vertical(board, x, y, adversaire, W, H, 4) || check_N_diagonale_pente_positive(board, x, y, adversaire, W, H, 4) || check_N_diagonale_pente_positive(board, x, y, adversaire, W, H, 4) || check_N_diagonale_pente_negative(board, x, y, adversaire, W, H, 4)){
-		cout << "stopWin" << endl;
+		// cout << "stopWin" << endl;
 		reward += stopWin;
 	}
+
+	//Ne pas donner la victoire
 
 	//Force win
 	
@@ -68,19 +71,19 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	nombre = 0;
 	if(check_N_horizontal(board, x, y, S, W, H, 3)){
 		nombre += potentiel_N_horizontal(board, x, y, S, W, H, 3);
-		cout << "connect 3 with potential horizontaly"<< endl;
+		// cout << "connect 3 with potential horizontaly : " << nombre << endl;
 	}
 	if(check_N_vertical(board, x, y, S, W, H, 3)){
 		nombre += potentiel_N_vertical(board, x, y, S, W, H, 3);
-		cout << "connect 3 with potential verticaly"<< endl;
+		// cout << "connect 3 with potential verticaly : " << nombre << endl;
 	}
 	if(check_N_diagonale_pente_positive(board, x, y, S, W, H, 3)){
 		nombre += potentiel_N_diagonale_pente_positive(board, x, y, S, W, H, 3);
-		cout << "connect 3 with potential diagonale pente positive"<< endl;
+		// cout << "connect 3 with potential diagonale pente positive : " << nombre << endl;
 	}
 	if(check_N_diagonale_pente_negative(board, x, y, S, W, H, 3)){
 		nombre += potentiel_N_diagonale_pente_negative(board, x, y, S, W, H, 3);
-		cout << "connect 3 with potential diagonale pente negative"<< endl;
+		// cout << "connect 3 with potential diagonale pente negative : " << nombre << endl;
 	}
 
 	reward += nombre * connect3WithPotential;
@@ -92,19 +95,19 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	nombre = 0;
 	if(check_N_horizontal(board, x, y, adversaire, W, H, 3)){
 		nombre += potentiel_N_horizontal(board, x, y, adversaire, W, H, 3);
-		cout << "stopConnect3 horizontaly" << endl;
+		// cout << "stopConnect3 horizontaly nombre : " << nombre << endl;
 	}
 	if(check_N_vertical(board, x, y, adversaire, W, H, 3)){
 		nombre += potentiel_N_vertical(board, x, y, adversaire, W, H, 3);
-		cout << "stopConnect3 verticaly" << endl;
+		// cout << "stopConnect3 verticaly nombre : " << nombre << endl;
 	}
 	if(check_N_diagonale_pente_positive(board, x, y, adversaire, W, H, 3)){
 		nombre += potentiel_N_diagonale_pente_positive(board, x, y, adversaire, W, H, 3);
-		cout << "stopConnect3 diagonale pente positive" << endl;
+		// cout << "stopConnect3 diagonale pente positive : " << nombre << endl;
 	}
 	if(check_N_diagonale_pente_negative(board, x, y, adversaire, W, H, 3)){
 		nombre += potentiel_N_diagonale_pente_negative(board, x, y, adversaire, W, H, 3);
-		cout << "stopConnect3 diagonale pente negative" << endl;
+		// cout << "stopConnect3 diagonale pente negative : " << nombre << endl;
 	}
 	reward += nombre * stopConnect3WithPotential;
 	
@@ -112,19 +115,19 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	nombre = 0;
 	if(check_N_horizontal(board, x, y, S, W, H, 2)){
 		nombre += potentiel_N_horizontal(board, x, y, S, W, H, 2);
-		cout << "connect2 horizontaly" << endl;
+		// cout << "connect2 horizontaly : " << nombre << endl;
 	}
 	if(check_N_vertical(board, x, y, S, W, H, 2)){
 		nombre += potentiel_N_vertical(board, x, y, S, W, H, 2);
-		cout << "connect2 verticaly" << endl;
+		// cout << "connect2 verticaly : " << nombre << endl;
 	}
 	if(check_N_diagonale_pente_positive(board, x, y, S, W, H, 2)){
 		nombre += potentiel_N_diagonale_pente_positive(board, x, y, S, W, H, 2);
-		cout << "connect2 diagonale pente positive" << endl;
+		// cout << "connect2 diagonale pente positive : " << nombre << endl;
 	}
 	if(check_N_diagonale_pente_negative(board, x, y, S, W, H, 2)){
 		nombre += potentiel_N_diagonale_pente_negative(board, x, y, S, W, H, 2);
-		cout << "connect2 diagonale pente negative" << endl;
+		// cout << "connect2 diagonale pente negative : " << nombre << endl;
 	}
 	reward += nombre * connect2WithPotential;
 	
@@ -169,7 +172,7 @@ int main(){
 		}
 		x = fallHeight(board, y, H);
 		board[x][y] = player;
-		Afficher(board);
+		// Afficher(board);
 	}	
 }
 
@@ -308,15 +311,38 @@ int check_N_diagonale_pente_negative(vector<vector<int>> & board, int x, int y, 
 }
 
 int potentiel_N_horizontal(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
+	int adversaire = S % 2 + 1;
 	int res = 0;
 	int compteur;
 	//Horizontal
 	board[x][y] = S;
 	vector<int>::iterator itDebut;
 	vector<int>::iterator itFin;
-	vector<int>::iterator it;
+	vector<int>::iterator it = board[x].begin();
 	vector<int>::iterator it2;
-	itDebut = search_n(board[x].begin(), board[x].end(), N, S);
+	vector<int>::iterator debut = board[x].begin();
+	vector<int>::iterator fin = board[x].end();
+	--fin;
+	int posFin = W - 1;
+	for(int i = 0; i < y; ++i){
+		if( *it == adversaire || *it == 0){
+			debut = it;
+			++it;
+		} else {
+			++it;
+		}
+	}
+	it = fin;
+	for(int i = W - 1; i > y; --i){
+		if(*it == adversaire || *it == 0){
+			fin = it;
+			posFin = i;
+			--it;
+		} else {
+			--it;
+		}
+	}
+	itDebut = search_n(debut, fin, N, S);
 	itFin = itDebut;
 	for(int i = 0; i < N-1; ++i){
 		++itFin;
