@@ -5,27 +5,27 @@
 using namespace std;
 
 //Récompenses en puissance de 2 pour par exemple que win ne puisse pas se faire rattraper par la somme des autres
-int win = 100000;
-int stopWin = 20000;
-int dontGiveWin = 5000;
-int forceWin = 1000;
-int coupDuTraitre = 1000;
-int stopForceWin = 500;
-int stopCoupDuTraitre = 500;
-int dontGiveForceWin = 300;
-int connect3WithPotential = 80;
-int coeffCentre = 7;
+int win = 500000;
+int stopWin = 100000;
+int dontGiveWin = 50000;
+int forceWin = 10000;
+int coupDuTraitre = 10000;
+int stopForceWin = 5000;
+int stopCoupDuTraitre = 5000;
+int dontGiveForceWin = 3000;
+int connect3WithPotential = 100;
+int coeffCentre = 5;
 int playCenter = 4;
-int stopConnect3WithPotential = 40;
-int connect2WithPotential = 8;
+int stopConnect3WithPotential = 70;
+int connect2WithPotential = 5;
 
 int possibilitesWin[6][7] =	{
-								{3,4,5,7,5,4,3},
-								{4,6,10,15,10,6,4},
-								{5,8,20,25,20,8,5},
-								{5,8,20,25,20,8,5},
-								{4,6,8,10,8,6,4},
-								{2,2,5,7,5,2,2}
+								{10,10,50,55,50,10,10},
+								{10,10,65,70,65,10,10},
+								{10,10,80,90,80,10,10},
+								{10,10,80,90,80,10,10},
+								{10,10,60,10,60,10,10},
+								{10,50,10,95,10,50,10}
 							};
 
 void Afficher(vector<vector<int>> & board);
