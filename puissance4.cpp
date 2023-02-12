@@ -6,14 +6,24 @@ using namespace std;
 
 //Récompenses en puissance de 2 pour par exemple que win ne puisse pas se faire rattraper par la somme des autres
 int win = 100000;
-int stopWin = 10000;
-int dontGiveWin = 3000;
-int forceWin = 256;
-int stopForceWin = 128;
+int stopWin = 20000;
+int dontGiveWin = 5000;
+int forceWin = 1000;
+int stopForceWin = 500;
+int dontGiveForceWin = 300;
 int connect3WithPotential = 8;
 int playCenter = 4;
-int stopConnect3WithPotential = 4;
+int stopConnect3WithPotential = 6;
 int connect2WithPotential = 2;
+
+int possibilitesWin[6][7] =	{
+								{3,4,5,7,5,4,3},
+								{4,6,8,10,8,6,4},
+								{5,8,11,13,11,8,5},
+								{5,8,11,13,11,8,5},
+								{4,6,8,10,8,6,4},
+								{3,4,5,7,5,4,3}
+							};
 
 void Afficher(vector<vector<int>> & board);
 int check_N_horizontal(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N);
@@ -71,9 +81,36 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	reward += nombre * dontGiveWin;
 	board[x][y] = 0;
 
-	//Force win
-	
+	//Repérer une force win
+	if(x < H - 2){
+		nombre = 0;
+		board[x][y] = S;
+		if( check_N_horizontal(board, x+1, y, S, W, H, 4) || check_N_vertical(board, x+1, y, S, W, H, 4) || check_N_diagonale_pente_positive(board, x+1, y, S, W, H, 4) || check_N_diagonale_pente_negative(board, x+1, y, S, W, H, 4)){
+			board[x+1][y] = S;
+			if(check_N_horizontal(board, x+2, y, S, W, H, 4) || check_N_vertical(board, x+2, y, S, W, H, 4) || check_N_diagonale_pente_positive(board, x+2, y, S, W, H, 4) || check_N_diagonale_pente_negative(board, x+2, y, S, W, H, 4)){
+				nombre = 1;
+			}
+			board[x+1][y] = 0;
+		}
+		board[x][y] = 0;
+		reward += nombre * forceWin;
+	}
 	//Empêcher une force win
+	
+	//Ne pas donner une force win
+	if(x < H - 2){
+		nombre = 1;
+		board[x][y] = S;
+		if( check_N_horizontal(board, x+1, y, adversaire, W, H, 4) || check_N_vertical(board, x+1, y, adversaire, W, H, 4) || check_N_diagonale_pente_positive(board, x+1, y, adversaire, W, H, 4) || check_N_diagonale_pente_negative(board, x+1, y, adversaire, W, H, 4)){
+			board[x+1][y] = adversaire;
+			if(check_N_horizontal(board, x+2, y, adversaire, W, H, 4) || check_N_vertical(board, x+2, y, adversaire, W, H, 4) || check_N_diagonale_pente_positive(board, x+2, y, adversaire, W, H, 4) || check_N_diagonale_pente_negative(board, x+2, y, adversaire, W, H, 4)){
+				nombre = 0;
+			}
+			board[x+1][y] = 0;
+		}
+		board[x][y] = 0;
+		reward += nombre * dontGiveForceWin;
+	}
 	
 	//Connecter trois pions qui ont du potentiel
 	//TODO si on a du potentiel dans deux sens différents, nombre doit être incrémenté de deux en pas 1
@@ -98,7 +135,11 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	reward += nombre * connect3WithPotential;
 
 	//Jouer au centre
-	reward += playCenter - abs(milieu - y)*2;
+	if(W == 7 && H == 6){
+		reward += possibilitesWin[x][y];
+	} else {
+		reward += playCenter - abs(milieu - y)*2;
+	}
 
 	//Empêcher de connecter trois pions qui ont du potentiel
 	nombre = 0;
