@@ -107,8 +107,8 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	//Empêcher une force win
 	
 	//Ne pas donner une force win
+	nombre = 1;
 	if(x < H - 2){
-		nombre = 1;
 		board[x][y] = S;
 		if( check_N_horizontal(board, x+1, y, adversaire, W, H, 4) || check_N_vertical(board, x+1, y, adversaire, W, H, 4) || check_N_diagonale_pente_positive(board, x+1, y, adversaire, W, H, 4) || check_N_diagonale_pente_negative(board, x+1, y, adversaire, W, H, 4)){
 			board[x+1][y] = adversaire;
