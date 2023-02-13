@@ -94,7 +94,7 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 		nombre = 0;
 		board[x][y] = S;
 		if( check_N_horizontal(board, x+1, y, S, W, H, 4) || check_N_vertical(board, x+1, y, S, W, H, 4) || check_N_diagonale_pente_positive(board, x+1, y, S, W, H, 4) || check_N_diagonale_pente_negative(board, x+1, y, S, W, H, 4)){
-			board[x+1][y] = S;
+			board[x+1][y] = adversaire;
 			if(check_N_horizontal(board, x+2, y, S, W, H, 4) || check_N_vertical(board, x+2, y, S, W, H, 4) || check_N_diagonale_pente_positive(board, x+2, y, S, W, H, 4) || check_N_diagonale_pente_negative(board, x+2, y, S, W, H, 4)){
 				nombre = 1;
 				cout << "> forceWin : " << forceWin << endl;
@@ -114,16 +114,17 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 			board[x+1][y] = adversaire;
 			if(check_N_horizontal(board, x+2, y, adversaire, W, H, 4) || check_N_vertical(board, x+2, y, adversaire, W, H, 4) || check_N_diagonale_pente_positive(board, x+2, y, adversaire, W, H, 4) || check_N_diagonale_pente_negative(board, x+2, y, adversaire, W, H, 4)){
 				nombre = 0;
+				cout << "> givesForceWin : " << 0 << endl;
 			}
-			cout << "> givesForceWin : " << 0 << endl;
 			board[x+1][y] = 0;
 		}
-		if(nombre == 1){
-			cout << "> doesntGiveForceWin : " << dontGiveForceWin << endl;
-		}
 		board[x][y] = 0;
-		reward += nombre * dontGiveForceWin;
 	}
+	if(nombre == 1){
+		cout << "> doesntGiveForceWin : " << dontGiveForceWin << endl;
+	}
+	reward += nombre * dontGiveForceWin;
+	
 
 	//Coup du traitre
 	if(saleTraitre(board, x, y, S, W, H)){
@@ -273,49 +274,19 @@ void Afficher(vector<vector<int>> & board){
 }
 
 int check_N_horizontal(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
-	// int adversaire = S % 2 + 1;
-	// //On vérifie l'horizontale
-	// vector<int>::iterator it = board[x].begin();
-	// vector<int>::iterator debut = it;
-	// vector<int>::iterator fin = board[x].end();
-	// --fin;
-	// int posFin = W - 1;
-	// for(int i = 0; i < y; ++i){
-	// 	if( *it == adversaire || *it == 0){
-	// 		debut = it;
-	// 		++it;
-	// 	} else {
-	// 		++it;
-	// 	}
-	// }
-	// it = fin;
-	// for(int i = W - 1; i > y; --i){
-	// 	if(*it == adversaire || *it == 0){
-	// 		fin = it;
-	// 		posFin = i;
-	// 		--it;
-	// 	} else {
-	// 		--it;
-	// 	}
-	// }
-	// //cout << "appel pour N = " << N << " last : " << *fin  << " posfin : " << posFin << endl;
-	// board[x][y] = S;
-	// vector<int>::iterator it2 = search_n(debut, fin, N, S);
-	// if(it2 != fin){
-	// 	board[x][y] = 0;
-	// 	return 1;
-	// } else {
-	// 	board[x][y] = 0;
-	// }
-	// return 0;
-	
 	int serieTrouvee = 0;
 	int yprime = 0;
 	int compteur = 0;
+	int jokerZero;
 	int debutSerie;
 	int finSerie;
 	board[x][y] = S;
 	while(yprime < W){
+		if( N < 4){
+			jokerZero = 1;
+		} else {
+			jokerZero = 0;
+		}
 		while( yprime < W && board[x][yprime] != S){
 			yprime++;
 		}
@@ -324,7 +295,11 @@ int check_N_horizontal(vector<vector<int>> & board, int x, int y, int S, int W, 
 		compteur = 1;
 		finSerie = debutSerie;
 		yprime++;
-		while(yprime < W && board[x][yprime] == S){
+		while(yprime < W && (board[x][yprime] == S || (board[x][yprime] == 0 && jokerZero > 0) ) ){
+			if(board[x][yprime] == 0){
+				compteur--;
+				jokerZero = 0;
+			}	
 			finSerie++;
 			compteur++;
 			yprime++;
@@ -335,8 +310,8 @@ int check_N_horizontal(vector<vector<int>> & board, int x, int y, int S, int W, 
 		}
 	}
 	board[x][y] = 0;
-	// cout << "oki" << endl;
 	return serieTrouvee;
+
 }
 
 int check_N_vertical(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
