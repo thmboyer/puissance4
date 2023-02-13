@@ -20,12 +20,12 @@ int stopConnect3WithPotential = 70;
 int connect2WithPotential = 5;
 
 int possibilitesWin[6][7] =	{
-								{10,10,50,55,50,10,10},
-								{10,10,65,70,65,10,10},
-								{10,10,80,90,80,10,10},
-								{10,10,80,90,80,10,10},
+								{10,50,10,95,10,50,10},
 								{10,10,60,10,60,10,10},
-								{10,50,10,95,10,50,10}
+								{10,10,80,90,80,10,10},
+								{10,10,80,90,80,10,10},
+								{10,10,65,70,65,10,10},
+								{10,10,50,55,50,10,10}
 							};
 
 void Afficher(vector<vector<int>> & board);
@@ -59,18 +59,18 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	int reward = 0;
 	int adversaire = S % 2 + 1;
 	int nombre;
-	
-	// cout << " x : " << x << " y : " << y << endl;	
+	cout << ">---------------------" << endl;
+	cout << "> x : " << x << " y : " << y << endl;	
 
 	//Win la partie
 	if(check_N_horizontal(board, x, y, S, W, H, 4) || check_N_vertical(board, x, y, S, W, H, 4) || check_N_diagonale_pente_positive(board, x, y, S, W, H, 4) || check_N_diagonale_pente_negative(board, x, y, S, W, H, 4)){
-		// cout << "win" << endl;
+		cout << "> win : " << win << endl;
 		reward += win;
 	}
 	
 	//Empêcher une win
 	if(check_N_horizontal(board, x, y, adversaire, W, H, 4) || check_N_vertical(board, x, y, adversaire, W, H, 4) || check_N_diagonale_pente_positive(board, x, y, adversaire, W, H, 4) || check_N_diagonale_pente_positive(board, x, y, adversaire, W, H, 4) || check_N_diagonale_pente_negative(board, x, y, adversaire, W, H, 4)){
-		// cout << "stopWin" << endl;
+		cout << "> stopWin : " << stopWin << endl;
 		reward += stopWin;
 	}
 
@@ -80,7 +80,11 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	if(x < H-1){
 		if(check_N_horizontal(board, x + 1, y, adversaire, W, H, 4) || check_N_diagonale_pente_positive(board, x + 1, y, adversaire, W, H, 4) || check_N_diagonale_pente_negative(board, x + 1, y, adversaire, W, H, 4)){
 			nombre = 0;
+			cout << "> givesWin : " << 0 << endl;
 		}
+	}
+	if(nombre == 1){
+		cout << "> doesntGiveWin : " << dontGiveWin << endl;
 	}
 	reward += nombre * dontGiveWin;
 	board[x][y] = 0;
@@ -93,6 +97,7 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 			board[x+1][y] = S;
 			if(check_N_horizontal(board, x+2, y, S, W, H, 4) || check_N_vertical(board, x+2, y, S, W, H, 4) || check_N_diagonale_pente_positive(board, x+2, y, S, W, H, 4) || check_N_diagonale_pente_negative(board, x+2, y, S, W, H, 4)){
 				nombre = 1;
+				cout << "> forceWin : " << forceWin << endl;
 			}
 			board[x+1][y] = 0;
 		}
@@ -110,7 +115,11 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 			if(check_N_horizontal(board, x+2, y, adversaire, W, H, 4) || check_N_vertical(board, x+2, y, adversaire, W, H, 4) || check_N_diagonale_pente_positive(board, x+2, y, adversaire, W, H, 4) || check_N_diagonale_pente_negative(board, x+2, y, adversaire, W, H, 4)){
 				nombre = 0;
 			}
+			cout << "> givesForceWin : " << 0 << endl;
 			board[x+1][y] = 0;
+		}
+		if(nombre == 1){
+			cout << "> doesntGiveForceWin : " << dontGiveForceWin << endl;
 		}
 		board[x][y] = 0;
 		reward += nombre * dontGiveForceWin;
@@ -118,12 +127,14 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 
 	//Coup du traitre
 	if(saleTraitre(board, x, y, S, W, H)){
+		cout << "> coupDuTraitre : " << coupDuTraitre << endl;
 		reward += coupDuTraitre;
 	}
 
 
 	//Stop coup du traitre
 	if(saleTraitre(board, x, y, adversaire, W, H)){
+		cout << "> stopCoupDuTraitre : " << stopCoupDuTraitre << endl;
 		reward += stopCoupDuTraitre;
 	}
 	
@@ -132,26 +143,28 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	nombre = 0;
 	if(check_N_horizontal(board, x, y, S, W, H, 3)){
 		nombre += potentiel_N_horizontal(board, x, y, S, W, H, 3);
-		// cout << "connect 3 with potential horizontaly : " << nombre << endl;
+		cout << "> connect 3 horizontaly" << endl;
 	}
 	if(check_N_vertical(board, x, y, S, W, H, 3)){
 		nombre += potentiel_N_vertical(board, x, y, S, W, H, 3);
-		// cout << "connect 3 with potential verticaly : " << nombre << endl;
+		cout << "> connect 3 verticaly" << endl;
 	}
 	if(check_N_diagonale_pente_positive(board, x, y, S, W, H, 3)){
 		nombre += potentiel_N_diagonale_pente_positive(board, x, y, S, W, H, 3);
-		// cout << "connect 3 with potential diagonale pente positive : " << nombre << endl;
+		cout << "> connect 3 diagonale pente positive" << endl;
 	}
 	if(check_N_diagonale_pente_negative(board, x, y, S, W, H, 3)){
 		nombre += potentiel_N_diagonale_pente_negative(board, x, y, S, W, H, 3);
-		// cout << "connect 3 with potential diagonale pente negative : " << nombre << endl;
+		cout << "> connect 3 diagonale pente negative" << nombre << endl;
 	}
+	cout << "> nombre de connect3 : " << nombre << " * " << connect3WithPotential << endl;
 
 	reward += nombre * connect3WithPotential;
 
 	//Jouer au centre
 	if(W == 7 && H == 6){
 		reward += coeffCentre * possibilitesWin[x][y];
+		cout << "> points de centre : " << coeffCentre * possibilitesWin[x][y] << endl;
 	} else {
 		reward += playCenter - abs(milieu - y)*2;
 	}
@@ -160,41 +173,45 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	nombre = 0;
 	if(check_N_horizontal(board, x, y, adversaire, W, H, 3)){
 		nombre += potentiel_N_horizontal(board, x, y, adversaire, W, H, 3);
-		// cout << "stopConnect3 horizontaly nombre : " << nombre << endl;
+		cout << "> stopConnect3 horizontaly" << endl;
 	}
 	if(check_N_vertical(board, x, y, adversaire, W, H, 3)){
 		nombre += potentiel_N_vertical(board, x, y, adversaire, W, H, 3);
-		// cout << "stopConnect3 verticaly nombre : " << nombre << endl;
+		cout << "> stopConnect3 verticaly" << endl;
 	}
 	if(check_N_diagonale_pente_positive(board, x, y, adversaire, W, H, 3)){
 		nombre += potentiel_N_diagonale_pente_positive(board, x, y, adversaire, W, H, 3);
-		// cout << "stopConnect3 diagonale pente positive : " << nombre << endl;
+		cout << "> stopConnect3 diagonale pente positive" << endl;
 	}
 	if(check_N_diagonale_pente_negative(board, x, y, adversaire, W, H, 3)){
 		nombre += potentiel_N_diagonale_pente_negative(board, x, y, adversaire, W, H, 3);
-		// cout << "stopConnect3 diagonale pente negative : " << nombre << endl;
+		cout << "> stopConnect3 diagonale pente negative" << endl;
 	}
+	cout << "> nombre de stopConnect3 : " << nombre << " * " << stopConnect3WithPotential << endl;
 	reward += nombre * stopConnect3WithPotential;
 	
 	//Connecter deux pions qui ont du potentiel
 	nombre = 0;
 	if(check_N_horizontal(board, x, y, S, W, H, 2)){
 		nombre += potentiel_N_horizontal(board, x, y, S, W, H, 2);
-		// cout << "connect2 horizontaly : " << nombre << endl;
+		cout << "> connect2 horizontaly" << endl;
 	}
 	if(check_N_vertical(board, x, y, S, W, H, 2)){
 		nombre += potentiel_N_vertical(board, x, y, S, W, H, 2);
-		// cout << "connect2 verticaly : " << nombre << endl;
+		cout << "> connect2 verticaly" << endl;
 	}
 	if(check_N_diagonale_pente_positive(board, x, y, S, W, H, 2)){
 		nombre += potentiel_N_diagonale_pente_positive(board, x, y, S, W, H, 2);
-		// cout << "connect2 diagonale pente positive : " << nombre << endl;
+		cout << "> connect2 diagonale pente positive"<< endl;
 	}
 	if(check_N_diagonale_pente_negative(board, x, y, S, W, H, 2)){
 		nombre += potentiel_N_diagonale_pente_negative(board, x, y, S, W, H, 2);
-		// cout << "connect2 diagonale pente negative : " << nombre << endl;
+		cout << "> connect2 diagonale pente negative : " << endl;
 	}
+	cout << "> nombre de connect2 : " << nombre << " * " << connect2WithPotential << endl;
 	reward += nombre * connect2WithPotential;
+	cout << "> --------------------------------------" << endl;
+	cout << "> reward de ce coup : " << reward << endl;
 	
 	return reward;
 }
