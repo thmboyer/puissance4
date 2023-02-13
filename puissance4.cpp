@@ -108,17 +108,19 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	
 	//Ne pas donner une force win
 	nombre = 1;
-	if(x < H - 2){
+	if(x < H - 3){
 		board[x][y] = S;
-		if( check_N_horizontal(board, x+1, y, adversaire, W, H, 4) || check_N_vertical(board, x+1, y, adversaire, W, H, 4) || check_N_diagonale_pente_positive(board, x+1, y, adversaire, W, H, 4) || check_N_diagonale_pente_negative(board, x+1, y, adversaire, W, H, 4)){
-			board[x+1][y] = adversaire;
-			if(check_N_horizontal(board, x+2, y, adversaire, W, H, 4) || check_N_vertical(board, x+2, y, adversaire, W, H, 4) || check_N_diagonale_pente_positive(board, x+2, y, adversaire, W, H, 4) || check_N_diagonale_pente_negative(board, x+2, y, adversaire, W, H, 4)){
+		board[x+1][y] = adversaire;
+		if( check_N_horizontal(board, x+2, y, adversaire, W, H, 4) || check_N_vertical(board, x+2, y, adversaire, W, H, 4) || check_N_diagonale_pente_positive(board, x+2, y, adversaire, W, H, 4) || check_N_diagonale_pente_negative(board, x+2, y, adversaire, W, H, 4)){
+			board[x+2][y] = S;
+			if(check_N_horizontal(board, x+3, y, adversaire, W, H, 4) || check_N_vertical(board, x+3, y, adversaire, W, H, 4) || check_N_diagonale_pente_positive(board, x+3, y, adversaire, W, H, 4) || check_N_diagonale_pente_negative(board, x+3, y, adversaire, W, H, 4)){
 				nombre = 0;
 				cout << "> givesForceWin : " << 0 << endl;
 			}
-			board[x+1][y] = 0;
+			board[x+2][y] = 0;
 		}
 		board[x][y] = 0;
+		board[x+1][y] = 0;
 	}
 	if(nombre == 1){
 		cout << "> doesntGiveForceWin : " << dontGiveForceWin << endl;
