@@ -158,7 +158,7 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	}
 	if(check_N_diagonale_pente_negative(board, x, y, S, W, H, 3)){
 		nombre += potentiel_N_diagonale_pente_negative(board, x, y, S, W, H, 3);
-		cout << "> connect 3 diagonale pente negative" << nombre << endl;
+		cout << "> connect 3 diagonale pente negative" << endl;
 	}
 	cout << "> nombre de connect3 : " << nombre << " * " << connect3WithPotential << endl;
 
@@ -339,36 +339,6 @@ int check_N_vertical(vector<vector<int>> & board, int x, int y, int S, int W, in
 }
 
 int check_N_diagonale_pente_positive(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
-	//On vérifie la diagonale pente positive
-	// int nbPions = 1;
-	// int xprime = x;
-	// int yprime = y;
-	// while(xprime > 0 && yprime > 0){
-	// 	if(board[xprime-1][yprime-1] == S){
-	// 		nbPions++;
-	// 	} else {
-	// 		break;
-	// 	}
-	// 	--xprime;
-	// 	--yprime;
-	// }
-	// xprime = x;
-	// yprime = y;
-	// while(xprime < H - 1 && yprime < W - 1){
-	// 	if(board[xprime+1][yprime+1] == S){
-	// 		nbPions++;
-	// 	} else {
-	// 		break;
-	// 	}
-	// 	++xprime;
-	// 	++yprime;
-	// }
-	// if(nbPions >= N){
-	// 	return 1;
-	// }
-	// return 0;
-
-	//On vérifie la diagonale pente positive
 	int jokerZero;
 	if(N < 4){
 		jokerZero = 1; 
@@ -427,36 +397,6 @@ int check_N_diagonale_pente_positive(vector<vector<int>> & board, int x, int y, 
 }
 
 int check_N_diagonale_pente_negative(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
-	//On vérifie la diagonale pente négative
-	// int nbPions = 1;
-	// int xprime = x;
-	// int yprime = y;
-	// while(xprime < H - 1 && yprime > 0){
-	// 	if(board[xprime+1][yprime-1] == S){
-	// 		nbPions++;
-	// 	} else {
-	// 		break;
-	// 	}
-	// 	++xprime;
-	// 	--yprime;
-	// }
-	// xprime = x;
-	// yprime = y;
-	// while(xprime > 0 && yprime < W - 1){
-	// 	if(board[xprime-1][yprime+1] == S){
-	// 		nbPions++;
-	// 	} else {
-	// 		break;
-	// 	}
-	// 	--xprime;
-	// 	++yprime;
-	// }
-	// if(nbPions >= N){
-	// 	return 1;
-	// }
-	// 
-	// return 0;
-		//On vérifie la diagonale pente positive
 	int jokerZero;
 	if(N < 4){
 		jokerZero = 1; 
