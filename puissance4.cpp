@@ -51,7 +51,7 @@ int fallHeight(vector<vector<int>> & board, int y, int H){
 int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	//calcul de x 
 	if(S == 2){
-		stopConnect3WithPotential = 350;
+		stopConnect3WithPotential = 385;
 	}
 	int x = fallHeight(board, y, H);
 	//cas coup illégal
