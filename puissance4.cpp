@@ -13,6 +13,7 @@ int coupDuTraitre = 10000;
 int stopForceWin = 5000;
 int stopCoupDuTraitre = 5000;
 int dontGiveForceWin = 3000;
+int dontFuckWinUp = 1000;
 int connect3WithPotential = 100;
 int coeffCentre = 5;
 int playCenter = 4;
@@ -49,6 +50,9 @@ int fallHeight(vector<vector<int>> & board, int y, int H){
 
 int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	//calcul de x 
+	if(S == 2){
+		stopConnect3WithPotential = 200;
+	}
 	int x = fallHeight(board, y, H);
 	//cas coup illégal
 	if(x == H){
@@ -140,6 +144,20 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 		cout << "> stopCoupDuTraitre : " << stopCoupDuTraitre << endl;
 		reward += stopCoupDuTraitre;
 	}
+
+	//Dont fuck win up
+	nombre = 1;
+	if( x < H-1){
+		if( check_N_horizontal(board, x+1, y, S, W, H, 4) || check_N_vertical(board, x+1, y, S, W, H, 4) || check_N_diagonale_pente_positive(board, x+1, y, S, W, H, 4) || check_N_diagonale_pente_negative(board, x+1, y, S, W, H, 4)){
+			nombre = 0;
+		}
+	}
+	if(nombre){
+		cout << "> doesnt fuck up win : " << dontFuckWinUp << endl;
+	} else {
+		cout << "> fucks up win : " << endl;
+	}
+	reward += nombre * dontFuckWinUp;
 	
 	//Connecter trois pions qui ont du potentiel
 	//TODO si on a du potentiel dans deux sens différents, nombre doit être incrémenté de deux en pas 1
