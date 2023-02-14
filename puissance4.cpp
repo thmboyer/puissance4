@@ -178,6 +178,7 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 		nombre += potentiel_N_horizontal(board, x, y, adversaire, W, H, 3);
 		cout << "> stopConnect3 horizontaly" << endl;
 	}
+	// cout << "horizontal fait"<< endl;
 	if(check_N_vertical(board, x, y, adversaire, W, H, 3)){
 		nombre += potentiel_N_vertical(board, x, y, adversaire, W, H, 3);
 		cout << "> stopConnect3 verticaly" << endl;
@@ -186,10 +187,12 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 		nombre += potentiel_N_diagonale_pente_positive(board, x, y, adversaire, W, H, 3);
 		cout << "> stopConnect3 diagonale pente positive" << endl;
 	}
+	// cout << "diagonale positive faite" << endl;
 	if(check_N_diagonale_pente_negative(board, x, y, adversaire, W, H, 3)){
 		nombre += potentiel_N_diagonale_pente_negative(board, x, y, adversaire, W, H, 3);
 		cout << "> stopConnect3 diagonale pente negative" << endl;
 	}
+	// cout << "diagonale pente négative faite" << endl;
 	cout << "> nombre de stopConnect3 : " << nombre << " * " << stopConnect3WithPotential << endl;
 	reward += nombre * stopConnect3WithPotential;
 	
@@ -337,12 +340,58 @@ int check_N_vertical(vector<vector<int>> & board, int x, int y, int S, int W, in
 
 int check_N_diagonale_pente_positive(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
 	//On vérifie la diagonale pente positive
+	// int nbPions = 1;
+	// int xprime = x;
+	// int yprime = y;
+	// while(xprime > 0 && yprime > 0){
+	// 	if(board[xprime-1][yprime-1] == S){
+	// 		nbPions++;
+	// 	} else {
+	// 		break;
+	// 	}
+	// 	--xprime;
+	// 	--yprime;
+	// }
+	// xprime = x;
+	// yprime = y;
+	// while(xprime < H - 1 && yprime < W - 1){
+	// 	if(board[xprime+1][yprime+1] == S){
+	// 		nbPions++;
+	// 	} else {
+	// 		break;
+	// 	}
+	// 	++xprime;
+	// 	++yprime;
+	// }
+	// if(nbPions >= N){
+	// 	return 1;
+	// }
+	// return 0;
+
+	//On vérifie la diagonale pente positive
+	int jokerZero;
+	if(N < 4){
+		jokerZero = 1; 
+	} else { 
+		jokerZero = 0;
+	} 
+	int nbJokers = jokerZero;
+	int nbObtenusGauche = 0;
+	int nbObtenusDroite = 0;
 	int nbPions = 1;
 	int xprime = x;
 	int yprime = y;
 	while(xprime > 0 && yprime > 0){
-		if(board[xprime-1][yprime-1] == S){
-			nbPions++;
+		if(board[xprime-1][yprime-1] == S || (board[xprime-1][yprime-1] == 0 && nbJokers > 0) ){
+			if(board[xprime-1][yprime-1] == S){
+				if(nbJokers == jokerZero){ 
+					nbPions++; 
+				} else { 
+					nbObtenusGauche++; 
+				}
+			} else {
+				nbJokers--;
+			}
 		} else {
 			break;
 		}
@@ -351,29 +400,86 @@ int check_N_diagonale_pente_positive(vector<vector<int>> & board, int x, int y, 
 	}
 	xprime = x;
 	yprime = y;
+	nbJokers = jokerZero;
 	while(xprime < H - 1 && yprime < W - 1){
-		if(board[xprime+1][yprime+1] == S){
-			nbPions++;
+		if(board[xprime+1][yprime+1] == S || (board[xprime+1][yprime+1] == 0 && nbJokers > 0) ){
+			if(board[xprime+1][yprime+1] == S){
+				if(nbJokers == jokerZero){
+					nbPions++; 
+				} else {
+					nbObtenusDroite++;
+				}
+			} else {
+				nbJokers--;
+			}
 		} else {
-			break;
+			break; 
 		}
 		++xprime;
 		++yprime;
 	}
-	if(nbPions >= N){
+	int ajouter = nbObtenusDroite > nbObtenusGauche ? nbObtenusDroite : nbObtenusGauche;
+	if(nbPions + ajouter >= N){
 		return 1;
 	}
 	return 0;
+
 }
 
 int check_N_diagonale_pente_negative(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
 	//On vérifie la diagonale pente négative
+	// int nbPions = 1;
+	// int xprime = x;
+	// int yprime = y;
+	// while(xprime < H - 1 && yprime > 0){
+	// 	if(board[xprime+1][yprime-1] == S){
+	// 		nbPions++;
+	// 	} else {
+	// 		break;
+	// 	}
+	// 	++xprime;
+	// 	--yprime;
+	// }
+	// xprime = x;
+	// yprime = y;
+	// while(xprime > 0 && yprime < W - 1){
+	// 	if(board[xprime-1][yprime+1] == S){
+	// 		nbPions++;
+	// 	} else {
+	// 		break;
+	// 	}
+	// 	--xprime;
+	// 	++yprime;
+	// }
+	// if(nbPions >= N){
+	// 	return 1;
+	// }
+	// 
+	// return 0;
+		//On vérifie la diagonale pente positive
+	int jokerZero;
+	if(N < 4){
+		jokerZero = 1; 
+	} else { 
+		jokerZero = 0;
+	} 
+	int nbJokers = jokerZero;
+	int nbObtenusGauche = 0;
+	int nbObtenusDroite = 0;
 	int nbPions = 1;
 	int xprime = x;
 	int yprime = y;
 	while(xprime < H - 1 && yprime > 0){
-		if(board[xprime+1][yprime-1] == S){
-			nbPions++;
+		if(board[xprime+1][yprime-1] == S || (board[xprime+1][yprime-1] == 0 && nbJokers > 0) ){
+			if(board[xprime+1][yprime-1] == S){
+				if(nbJokers == jokerZero){ 
+					nbPions++; 
+				} else { 
+					nbObtenusGauche++; 
+				}
+			} else {
+				nbJokers--;
+			}
 		} else {
 			break;
 		}
@@ -382,100 +488,45 @@ int check_N_diagonale_pente_negative(vector<vector<int>> & board, int x, int y, 
 	}
 	xprime = x;
 	yprime = y;
+	nbJokers = jokerZero;
 	while(xprime > 0 && yprime < W - 1){
-		if(board[xprime-1][yprime+1] == S){
-			nbPions++;
+		if(board[xprime-1][yprime+1] == S || (board[xprime-1][yprime+1] == 0 && nbJokers > 0) ){
+			if(board[xprime-1][yprime+1] == S){
+				if(nbJokers == jokerZero){
+					nbPions++; 
+				} else {
+					nbObtenusDroite++;
+				}
+			} else {
+				nbJokers--;
+			}
 		} else {
-			break;
+			break; 
 		}
 		--xprime;
 		++yprime;
 	}
-	if(nbPions >= N){
+	int ajouter = nbObtenusDroite > nbObtenusGauche ? nbObtenusDroite : nbObtenusGauche;
+	if(nbPions + ajouter >= N){
 		return 1;
 	}
-	
 	return 0;
 }
 
 int potentiel_N_horizontal(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N){
-	// int adversaire = S % 2 + 1;
-	// int res = 0;
-	// int compteur;
-	// //Horizontal
-	// board[x][y] = S;
-	// vector<int>::iterator itDebut;
-	// vector<int>::iterator itFin;
-	// vector<int>::iterator it = board[x].begin();
-	// vector<int>::iterator it2;
-	// vector<int>::iterator debut = board[x].begin();
-	// vector<int>::iterator fin = board[x].end();
-	// --fin;
-	// int posFin = W - 1;
-	// for(int i = 0; i < y; ++i){
-	// 	if( *it == adversaire || *it == 0){
-	// 		debut = it;
-	// 		++it;
-	// 	} else {
-	// 		++it;
-	// 	}
-	// }
-	// it = fin;
-	// for(int i = W - 1; i > y; --i){
-	// 	if(*it == adversaire || *it == 0){
-	// 		fin = it;
-	// 		posFin = i;
-	// 		--it;
-	// 	} else {
-	// 		--it;
-	// 	}
-	// }
-	// itDebut = search_n(debut, fin, N, S);
-	// itFin = itDebut;
-	// for(int i = 0; i < N-1; ++i){
-	// 	++itFin;
-	// }
-	// compteur = N;
-	// it = itDebut;
-	// it2 = itFin;
-	// ++it2;
-	// if(it != board[0].begin()){
-	// 	--it;
-	// }
-	// while(it != board[x].begin()){
-	// 	if(*it == 0 || *it == S){
-	// 		compteur++;
-	// 		--it;
-	// 	} else {
-	// 		break;
-	// 	}
-	// }
-	// if(it == board[x].begin()){
-	// 	if(*it == 0 || *it == S){
-	// 		compteur++;
-	// 	}
-	// }
-	// while(it2 != board[x].end()){
-	// 	if(*it2 == 0 || *it2 == S){
-	// 		compteur++;
-	// 		++it2;
-	// 	} else {
-	// 		break;
-	// 	}
-	// }
-	// if(compteur >= 4){
-	// 	res++;
-	// }
-	// board[x][y] = 0;
-	// return res;
-	
 	int serieTrouvee = 0;
 	int yprime = 0;
 	int compteur = 0;
 	int debutSerie;
+	int jokerZero;
 	int finSerie;
 	board[x][y] = S;
 	while(yprime < W){
+		if( N < 4){
+			jokerZero = 1;
+		} else {
+			jokerZero = 0;
+		}
 		while(yprime < W && board[x][yprime] != S){
 			yprime++;
 		}
@@ -483,7 +534,11 @@ int potentiel_N_horizontal(vector<vector<int>> & board, int x, int y, int S, int
 		compteur = 1;
 		finSerie = debutSerie;
 		yprime++;
-		while(yprime < W && board[x][yprime] == S){
+		while(yprime < W && (board[x][yprime] == S || (board[x][yprime] == 0 && jokerZero > 0) ) ){
+			if(board[x][yprime] == 0){
+				compteur--;
+				jokerZero = 0;
+			}
 			finSerie++;
 			compteur++;
 			yprime++;
