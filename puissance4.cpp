@@ -39,6 +39,7 @@ int potentiel_N_vertical(vector<vector<int>> & board, int x, int y, int S, int W
 int potentiel_N_diagonale_pente_positive(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N);
 int potentiel_N_diagonale_pente_negative(vector<vector<int>> & board, int x, int y, int S, int W, int H, int N);
 int saleTraitre(vector<vector<int>> & board, int x, int y, int S, int W, int H);
+int givesForceWin(vector<vector<int>> & board, int x, int y, int S, int W, int H);
 
 int fallHeight(vector<vector<int>> & board, int y, int H){
 	int x = H;
@@ -56,7 +57,7 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	int x = fallHeight(board, y, H);
 	//cas coup illégal
 	if(x == H){
-		return -10000;
+		return -1000000;
 	}
 	//set up des variables
 	int milieu = W/2;
@@ -94,37 +95,37 @@ int reward(vector<vector<int>> & board, int y, int S, int W, int H){
 	board[x][y] = 0;
 
 	//Repérer une force win
-	if(x < H - 2){
-		nombre = 0;
-		board[x][y] = S;
-		if( check_N_horizontal(board, x+1, y, S, W, H, 4) || check_N_vertical(board, x+1, y, S, W, H, 4) || check_N_diagonale_pente_positive(board, x+1, y, S, W, H, 4) || check_N_diagonale_pente_negative(board, x+1, y, S, W, H, 4)){
-			board[x+1][y] = adversaire;
-			if(check_N_horizontal(board, x+2, y, S, W, H, 4) || check_N_vertical(board, x+2, y, S, W, H, 4) || check_N_diagonale_pente_positive(board, x+2, y, S, W, H, 4) || check_N_diagonale_pente_negative(board, x+2, y, S, W, H, 4)){
-				nombre = 1;
-				cout << "> forceWin : " << forceWin << endl;
-			}
-			board[x+1][y] = 0;
-		}
-		board[x][y] = 0;
-		reward += nombre * forceWin;
+	nombre = 0;
+	if(givesForceWin(board, x, y, S, W, H)){
+		nombre = 1;
+		cout << "> ForceWin" << endl;
 	}
+	reward += nombre * forceWin;
+	
 	//Empêcher une force win
+	nombre = 0;
+	if(givesForceWin(board, x, y, adversaire, W, H)){
+		nombre = 1;
+		cout << "> Empecher force Win : " << dontGiveForceWin << endl;
+	}
+	reward += nombre * dontGiveForceWin;
 	
 	//Ne pas donner une force win
 	nombre = 1;
-	if(x < H - 3){
+	int xprime;
+	int yprime;
+	if(x < H - 1){
 		board[x][y] = S;
-		board[x+1][y] = adversaire;
-		if( check_N_horizontal(board, x+2, y, adversaire, W, H, 4) || check_N_vertical(board, x+2, y, adversaire, W, H, 4) || check_N_diagonale_pente_positive(board, x+2, y, adversaire, W, H, 4) || check_N_diagonale_pente_negative(board, x+2, y, adversaire, W, H, 4)){
-			board[x+2][y] = S;
-			if(check_N_horizontal(board, x+3, y, adversaire, W, H, 4) || check_N_vertical(board, x+3, y, adversaire, W, H, 4) || check_N_diagonale_pente_positive(board, x+3, y, adversaire, W, H, 4) || check_N_diagonale_pente_negative(board, x+3, y, adversaire, W, H, 4)){
-				nombre = 0;
-				cout << "> givesForceWin : " << 0 << endl;
+		for(yprime = 0; yprime < W; ++yprime){
+			xprime = fallHeight(board, yprime, H);
+			if(xprime != H){
+				if(givesForceWin(board, xprime, yprime, adversaire, W, H)){
+					nombre = 0;
+					break;
+				}
 			}
-			board[x+2][y] = 0;
 		}
 		board[x][y] = 0;
-		board[x+1][y] = 0;
 	}
 	if(nombre == 1){
 		cout << "> doesntGiveForceWin : " << dontGiveForceWin << endl;
@@ -658,4 +659,62 @@ int saleTraitre(vector<vector<int>> & board, int x, int y, int S, int W, int H){
 		}
 	}
 	return traitrise;
+}
+
+int givesForceWin(vector<vector<int>> & board, int x, int y, int S, int W, int H){
+	int adversaire = S % 2 + 1;
+	int res = 0;
+	int nombreWin = 0;
+	board[x][y] = S;
+	//force win en empilant:
+	if(x < H - 2){
+		if( check_N_horizontal(board, x+1, y, S, W, H, 4) || check_N_vertical(board, x+1, y, S, W, H, 4) || check_N_diagonale_pente_positive(board, x+1, y, S, W, H, 4) || check_N_diagonale_pente_negative(board, x+1, y, S, W, H, 4)){
+			board[x+1][y] = adversaire;
+			if(check_N_horizontal(board, x+2, y, S, W, H, 4) || check_N_vertical(board, x+2, y, S, W, H, 4) || check_N_diagonale_pente_positive(board, x+2, y, S, W, H, 4) || check_N_diagonale_pente_negative(board, x+2, y, S, W, H, 4)){
+				res = 1;
+			}
+			board[x+1][y] = 0;
+		}
+	}
+
+	int xprime, yprime, xprime2, yprime2;
+	//force win en ayant deux sources de win disponibles et non liées
+	//Pour chaque colonne
+	for(yprime = 0; yprime < W; ++yprime){
+		//Si la colonne n'est pas pleine
+		if(board[H-1][yprime] == 0){
+			xprime = fallHeight(board, yprime, H);
+			//Si on a un connect 4, alors on incrémente le nombre de win
+			if(check_N_horizontal(board, xprime, yprime, S, W, H, 4) || check_N_vertical(board, xprime, yprime, S, W, H, 4) || check_N_diagonale_pente_positive(board, xprime, yprime, S, W, H, 4) || check_N_diagonale_pente_negative(board, xprime, yprime, S, W, H, 4)){
+				nombreWin++;
+				//L'adversaire doit bloquer
+				board[xprime][yprime] = adversaire;
+				//On repart de la même colonne et on continue le for, parce que la victoire pourrait se trouver en xprime+1 yprime
+				for(yprime2 = yprime; yprime2 < W; ++yprime2){
+					if(board[H-1][yprime2] == 0){
+						xprime2 = fallHeight(board, yprime2, H);
+						if(check_N_horizontal(board, xprime2, yprime2, S, W, H, 4) || check_N_vertical(board, xprime2, yprime2, S, W, H, 4) || check_N_diagonale_pente_positive(board, xprime2, yprime2, S, W, H, 4) || check_N_diagonale_pente_negative(board, xprime2, yprime2, S, W, H, 4)){
+							//Si on arrive là, le nombre win vaut forcément 2 donc on peut break
+							nombreWin++;
+							break;
+						}
+					}
+				}
+				//On remet le tableau dans son état de base
+				board[xprime][yprime] = 0;
+				if(nombreWin >= 2){
+					//rien ne sert de continuer si on a déjà trouvé une force Win
+					break;
+				}
+			}
+		}
+	}
+	//Si on a plus de deux win indépendantes, alors on a une forceWin
+	if(nombreWin >= 2){
+		res = 1;
+	}
+
+	//On remet le tableau dans son état de base
+	board[x][y] = 0;
+	return res;
 }
